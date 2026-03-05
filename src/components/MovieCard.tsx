@@ -1,12 +1,20 @@
+import { useNavigate } from "react-router-dom";
+
 interface MovieCardProps {
+  id: number;
   image: string;
   title: string;
   subtitle?: string;
 }
 
-const MovieCard = ({ image, title, subtitle }: MovieCardProps) => {
+const MovieCard = ({ id, image, title, subtitle }: MovieCardProps) => {
+  const navigate = useNavigate();
+
   return (
-    <div className="group flex-shrink-0 w-[160px] md:w-[180px] cursor-pointer">
+    <div
+      onClick={() => navigate(`/movie/${id}`)}
+      className="group flex-shrink-0 w-[160px] md:w-[180px] cursor-pointer"
+    >
       <div className="relative overflow-hidden rounded-lg mb-2 aspect-[2/3]">
         <img
           src={image}

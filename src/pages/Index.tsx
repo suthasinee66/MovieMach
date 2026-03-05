@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import CategoryFilter from "@/components/CategoryFilter";
@@ -6,74 +8,98 @@ import FeaturedMovie from "@/components/FeaturedMovie";
 import Footer from "@/components/Footer";
 
 import featured1 from "@/assets/featured-1.jpg";
-import featured2 from "@/assets/featured-2.jpg";
-import movie1 from "@/assets/movie-1.jpg";
-import movie2 from "@/assets/movie-2.jpg";
-import movie3 from "@/assets/movie-3.jpg";
-import movie4 from "@/assets/movie-4.jpg";
-import movie5 from "@/assets/movie-5.jpg";
-import movie6 from "@/assets/movie-6.jpg";
 
-const mostViewed = [
-  { image: movie1, title: "Shadow Agent", subtitle: "Action · 2024" },
-  { image: movie2, title: "Family Fun", subtitle: "Comedy · 2023" },
-  { image: movie3, title: "Alien Contact", subtitle: "Sci-Fi · 2024" },
-  { image: movie4, title: "Dark Whisper", subtitle: "Horror · 2023" },
-  { image: movie5, title: "The Warriors", subtitle: "Fantasy · 2024" },
-  { image: movie6, title: "Hero Rising", subtitle: "Action · 2024" },
-];
-
-const mostPopular = [
-  { image: movie5, title: "The Warriors", subtitle: "Fantasy · 2024" },
-  { image: movie3, title: "Alien Contact", subtitle: "Sci-Fi · 2024" },
-  { image: movie6, title: "Hero Rising", subtitle: "Action · 2024" },
-  { image: movie1, title: "Shadow Agent", subtitle: "Action · 2024" },
-  { image: movie4, title: "Dark Whisper", subtitle: "Horror · 2023" },
-  { image: movie2, title: "Family Fun", subtitle: "Comedy · 2023" },
-];
-
-const tvSeries = [
-  { image: movie4, title: "Stranger Things", subtitle: "Season 5 · Dual Audio" },
-  { image: movie1, title: "The Boys", subtitle: "Season 3 · Dual Audio" },
-  { image: movie3, title: "The Expanse", subtitle: "Dual Audio" },
-  { image: movie5, title: "Game of Thrones", subtitle: "Complete Series" },
-  { image: movie6, title: "1899", subtitle: "Season 1 · Multi Audio" },
-  { image: movie2, title: "Wanted", subtitle: "2024" },
-];
+type Movie = {
+  id: number;
+  image: string;
+  title: string;
+  subtitle: string;
+  genres: string;   // 👈 เพิ่มอันนี้
+};
 
 const Index = () => {
+  const [recommendedMovies, setRecommendedMovies] = useState<Movie[]>([]);
+  const [topMovies, setTopMovies] = useState<Movie[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const filterMovies = (movies: Movie[]) => {
+  if (selectedCategory === "All") return movies;
+
+  return movies.filter((movie) => {
+    if (!movie.genres) return false;
+
+    const genreList = movie.genres.split("|");
+
+    return genreList.includes(selectedCategory);
+  });
+};
+  // 🔥 โหลด Top Rated จาก /movies
+  useEffect(() => {
+  fetch("http://127.0.0.1:8000/movies?page=1&limit=20")
+    .then((res) => res.json())
+    .then((response) => {
+      const formatted = response.data.map((movie: any) => ({
+        id: movie.movieId,
+        image: movie.poster
+          ? movie.poster
+          : "https://via.placeholder.com/300x450",
+        title: movie.title,
+        subtitle: `⭐ ${movie.avg_rating}`,
+        genres: movie.genres,
+      }));
+
+      setTopMovies(formatted);
+    })
+    .catch((err) => console.error(err));
+}, []);
+
+  // 🔥 โหลด Recommend จาก KNIME
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/recommend/1")
+      .then((res) => res.json())
+      .then((data) => {
+        const formatted = data.map((movie: any) => ({
+          id: movie.movieId,
+          image: movie.poster
+            ? movie.poster
+            : "https://via.placeholder.com/300x450",
+          title: movie.title,
+          subtitle: `⭐ ${movie.avg_rating}`,
+          genres: movie.genres
+        }));
+
+        setRecommendedMovies(formatted);
+      })
+      .catch((err) => console.error(err));
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <HeroSection />
-      <CategoryFilter />
-      <MovieCarousel title="Most Viewed" movies={mostViewed} />
+      <CategoryFilter onChange={setSelectedCategory} />
 
-      <FeaturedMovie
-        image={featured1}
-        title="BLACK ADAM"
-        rating="4.0"
-        imdb="8.1"
-        description="Nearly 5,000 years after he was bestowed with the almighty powers of the Egyptian gods—and imprisoned just as quickly—Black Adam is freed from his earthly tomb, ready to unleash his unique form of justice."
+      {/* 🔥 จาก KNIME */}
+      <MovieCarousel
+        title="Recommended For You"
+        movies={filterMovies(recommendedMovies)}
+        type="recommended"
       />
 
-      <MovieCarousel title="Most Popular" movies={mostPopular} />
+      {topMovies.length > 0 && (
+  <FeaturedMovie
+    image={topMovies[0].image}
+    title={topMovies[0].title}
+    subtitle={topMovies[0].subtitle}
+  />
+)}
 
-      <div className="px-6 md:px-12 py-8">
-        <h2 className="font-display text-4xl md:text-5xl text-center text-foreground tracking-wide">
-          Popular TV Series
-        </h2>
-      </div>
-
-      <FeaturedMovie
-        image={featured2}
-        title="THE FLASH : SEASON 9"
-        rating="4.0"
-        imdb="7.8"
-        description="After being struck by lightning, Barry Allen wakes up from his coma to discover he's been given the power of super speed, becoming the next Flash fighting crime in Central City."
+      {/* 🔥 Top Rating */}
+      <MovieCarousel
+        title="Top Rated Movies"
+        movies={filterMovies(topMovies)}
+        type="top"
       />
 
-      <MovieCarousel title="Trending Series" movies={tvSeries} />
       <Footer />
     </div>
   );
