@@ -24,9 +24,9 @@ const MoviesPage = () => {
   let url = "";
 
   if (type === "recommended") {
-    url = "http://127.0.0.1:8000/recommend/1?limit=50";
+    url = "https://moviemach-4.onrender.com/recommend/1?limit=50";
   } else if (type === "top") {
-    url = "http://127.0.0.1:8000/movies?page=1&limit=50";
+    url = "https://moviemach-4.onrender.com/movies?page=1&limit=50";
   } else {
     return; // กันกรณี type แปลก ๆ
   }

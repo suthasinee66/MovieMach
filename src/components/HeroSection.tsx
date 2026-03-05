@@ -9,7 +9,7 @@ const HeroSection = () => {
   useEffect(() => {
   const baseMovieId = 1;
 
-  fetch(`http://127.0.0.1:8000/movie/${baseMovieId}`)
+  fetch(`https://moviemach-4.onrender.com/movie/${baseMovieId}`)
     .then((res) => res.json())
     .then((data) => {
       setMovie(data);

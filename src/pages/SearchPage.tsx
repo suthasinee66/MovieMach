@@ -32,7 +32,7 @@ const SearchPage = () => {
   setMovies([]);
   setLoading(true);
 
-  fetch(`http://127.0.0.1:8000/search?q=${encodeURIComponent(query)}`)
+  fetch(`https://moviemach-4.onrender.com/search?q=${encodeURIComponent(query)}`)
     .then((res) => res.json())
     .then((data) => {
       const formatted = data.map((movie: any) => ({

@@ -13,7 +13,7 @@ const MovieDetail = () => {
   const [recommended, setRecommended] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:8000/movie/${id}`)
+    fetch(`https://moviemach-4.onrender.com/movie/${id}`)
       .then((res) => res.json())
       .then((data) => setMovie(data))
       .catch((err) => console.error(err));
@@ -23,7 +23,7 @@ const MovieDetail = () => {
 
   setRecommended([]); // 👈 เคลียร์ของเก่าก่อน
 
-  fetch(`http://127.0.0.1:8000/recommend/${id}`)
+  fetch(`https://moviemach-4.onrender.com/recommend/${id}`)
     .then((res) => res.json())
     .then((data) => setRecommended(data))
     .catch((err) => console.error(err));
